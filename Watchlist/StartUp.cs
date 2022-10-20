@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Watchlist.Data;
+using Watchlist.Data.Models;
+using Watchlist.Services;
+using Watchlist.Services.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +12,22 @@ builder.Services.AddDbContext<WatchlistDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<User>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false; //false if not implemented email confirmation like in this demo.
+    options.Password.RequiredLength = 5;
+})
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<WatchlistDbContext>();
+
 builder.Services.AddControllersWithViews();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/User/Login";
+});
+
+builder.Services.AddScoped<IMovieService, MovieService>();
 
 var app = builder.Build();
 
