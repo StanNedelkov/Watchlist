@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Watchlist.Models;
-using Watchlist.Services;
 using Watchlist.Services.Contracts;
 
 namespace Watchlist.Controllers
@@ -45,10 +45,35 @@ namespace Watchlist.Controllers
             }
             catch (Exception)
             {
-                ModelState.AddModelError(string.Empty, "Ups");
+                ModelState.AddModelError(string.Empty, "Something went wrong!");
 
                 return View(model);
             }
+        }
+
+        [HttpPost]
+
+        public async Task<IActionResult> AddToCollection(int movieId)
+        {
+            try
+            {
+                var userId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                await service.AddToCollectionAsync(movieId, userId);
+            }
+            catch (ArgumentNullException ae)
+            {
+
+                throw;
+            }
+            return RedirectToAction(nameof(All));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Watched()
+        {
+            var userId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var movies = await service.WatchedMoviesAsync(userId);
+            return View(movies);
         }
     }
 }
