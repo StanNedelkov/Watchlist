@@ -84,6 +84,28 @@ namespace Watchlist.Services
                 .Genres
                 .ToListAsync();
 
+        public async Task RemoveFromCollectionAsync(int movieId, string userId)
+        {
+            var user = await context.Users.Where(x => x.Id == userId)
+               .Include(x => x.UsersMovies)
+               .ThenInclude(x => x.Movie)
+               .ThenInclude(x => x.Genre)
+               .FirstOrDefaultAsync();
+            if (user == null)
+            {
+                throw new ArgumentNullException("User not found");
+            }
+            var movie = user.UsersMovies.FirstOrDefault(x => x.MovieId == movieId);
+
+            if (movie != null)
+            {
+                user.UsersMovies.Remove(movie);
+                await context.SaveChangesAsync();
+            }
+           
+           
+        }
+
         public async Task<IEnumerable<MovieViewModel>> WatchedMoviesAsync(string userId)
         {
            // var movies = await context.Movies.Include(x => x.Genre).Include(x => x.UsersMovies).ToListAsync();

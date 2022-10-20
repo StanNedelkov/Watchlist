@@ -62,7 +62,6 @@ namespace Watchlist.Controllers
             }
             catch (ArgumentNullException ae)
             {
-
                 throw;
             }
             return RedirectToAction(nameof(All));
@@ -71,9 +70,38 @@ namespace Watchlist.Controllers
         [HttpGet]
         public async Task<IActionResult> Watched()
         {
-            var userId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            var movies = await service.WatchedMoviesAsync(userId);
-            return View(movies);
+
+            try
+            {
+                var userId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                var movies = await service.WatchedMoviesAsync(userId);
+                return View(movies);
+            }
+            catch (ArgumentNullException ae)
+            {
+                ModelState.AddModelError(string.Empty, ae.Message);
+
+                return View();
+                throw;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveFromCollection(int movieId)
+        {
+            try
+            {
+                var userId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                await service.RemoveFromCollectionAsync(movieId, userId);
+            }
+            catch (ArgumentNullException ae)
+            {
+                ModelState.AddModelError(string.Empty, ae.Message);
+                throw;
+            }
+            
+
+            return RedirectToAction(nameof(Watched));
         }
     }
 }
