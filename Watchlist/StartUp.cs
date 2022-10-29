@@ -12,6 +12,7 @@ builder.Services.AddDbContext<WatchlistDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+//Need to set adddefaltidentity<>to the class that inherits IdentityUser
 builder.Services.AddDefaultIdentity<User>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false; //false if not implemented email confirmation like in this demo.
@@ -21,12 +22,12 @@ builder.Services.AddDefaultIdentity<User>(options =>
     .AddEntityFrameworkStores<WatchlistDbContext>();
 
 builder.Services.AddControllersWithViews();
-
+//Need to create this to the login path
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/User/Login";
 });
-
+//Need to create this if using a service. Don't forget to call only the interface otherwise it will crash
 builder.Services.AddScoped<IMovieService, MovieService>();
 
 var app = builder.Build();

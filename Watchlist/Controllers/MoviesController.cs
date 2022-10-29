@@ -99,9 +99,27 @@ namespace Watchlist.Controllers
                 ModelState.AddModelError(string.Empty, ae.Message);
                 throw;
             }
-            
-
             return RedirectToAction(nameof(Watched));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int Id)
+        {
+            var model = (await service.GetMovieToEdit(Id));
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(EditMoviesViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            await service.EditMovieAsync(model);
+
+            return RedirectToAction(nameof(All));
         }
     }
 }

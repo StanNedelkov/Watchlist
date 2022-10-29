@@ -79,10 +79,52 @@ namespace Watchlist.Services
             }); 
         }
 
+        public async Task EditMovieAsync(EditMoviesViewModel viewModel)
+        {
+            var movie = await context.Movies.FindAsync(viewModel.Id);
+
+            if (movie == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            movie.ImageUrl = viewModel.ImageUrl;
+            movie.Title = viewModel.Title;
+            movie.Director = viewModel.Director;
+            movie.Rating = viewModel.Rating;
+            movie.GenreId = viewModel.GenreId;
+
+            await context.SaveChangesAsync();
+
+        }
+
         public async Task<IEnumerable<Genre>> GetGenresAsync() 
             =>   await context
                 .Genres
                 .ToListAsync();
+
+        public async Task<EditMoviesViewModel> GetMovieToEdit(int movieId)
+        {
+            var movie = await context.Movies.FindAsync(movieId);
+
+            if (movie == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            var model = new EditMoviesViewModel()
+            {
+                Id = movie.Id,
+                Director = movie.Director,
+                ImageUrl = movie.ImageUrl,
+                Rating = movie.Rating,
+                Title = movie.Title
+            };
+
+            model.Genres = await this.GetGenresAsync();
+
+            return model;
+        }
 
         public async Task RemoveFromCollectionAsync(int movieId, string userId)
         {

@@ -10,7 +10,7 @@ namespace Watchlist.Data
             : base(options)
         {
         }
-
+        //No need to add a DBSet for Users
         public DbSet<Genre> Genres { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<UserMovie> UsersMovies { get; set; }
@@ -21,6 +21,7 @@ namespace Watchlist.Data
                 um.HasKey(k => new { k.MovieId, k.UserId });
                
             });
+            //Need to set the User's input requirments here
             builder.Entity<User>()
                .Property(u => u.UserName)
                .HasMaxLength(20)
